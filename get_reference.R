@@ -11,7 +11,7 @@ opt_list   <- list(
   make_option(opt_str = c("-o", "--out"), 
               type    = "character", 
               default = NULL, 
-              help    = "Output file"),
+              help    = "Output file in FASTA fomat (.fasta)"),
   make_option(opt_str = c("-a", "--ann"), 
               type    = "logical", 
               default = TRUE, 
@@ -33,14 +33,7 @@ if (is.null(opt$out)) {
   opt$out <- file.path(getwd(), paste0(opt$seq, ".fasta"))
 }
 
-
-
-# DOWNLOAD THE SEQUENCE ---------------------------------------------------------------------------
-# Manipulation of large biological sequences
-suppressPackageStartupMessages(library("Biostrings", character.only = TRUE))
-suppressPackageStartupMessages(library("stringr",    character.only = TRUE))
-
-# Define the accession of the human chromosomes (autosomes, X and Y)
+# Define the chromosomes accession
 hsa_accessions <- c(
   "NC_000001", "NC_000002", "NC_000003", "NC_000004", "NC_000005", "NC_000006",
   "NC_000007", "NC_000008", "NC_000009", "NC_000010", "NC_000011", "NC_000012", 
@@ -48,13 +41,20 @@ hsa_accessions <- c(
   "NC_000019", "NC_000020", "NC_000021", "NC_000022", "NC_000023", "NC_000024")
 names(hsa_accessions) <- chr_names
 
+# DOWNLOAD THE SEQUENCE ---------------------------------------------------------------------------
+# Manipulation of large biological sequences
+suppressPackageStartupMessages(library("Biostrings", character.only = TRUE))
+suppressPackageStartupMessages(library("stringr",    character.only = TRUE))
+suppressPackageStartupMessages(library("readr",      character.only = TRUE))
+suppressPackageStartupMessages(library("dplyr",      character.only = TRUE))
+
 # Download and unzip the genome sequence
 sequence_url <- "https://ftp.ncbi.nlm.nih.gov/refseq/H_sapiens/annotation/GRCh38_latest/refseq_identifiers/GRCh38_latest_genomic.fna.gz"
-
 download.file(url = sequence_url, destfile = file.path(tempdir(), "hsa38.fasta.gz"), quiet = TRUE)
 system(command = paste("gunzip", file.path(tempdir(), "hsa38.fasta.gz")))
 all_sequence <- readDNAStringSet(filepath = file.path(tempdir(), "hsa38.fasta"))
 
+# Select the sequences to export
 if (opt$seq %in% chr_names) {
   chr_sequence <- all_sequence[which(str_detect(string = names(all_sequence), pattern = hsa_accessions[opt$seq]))]
 } else {
@@ -65,6 +65,33 @@ if (opt$seq %in% chr_names) {
   chr_sequence <- unlist(DNAStringSetList(chr_sequence))
 }
 
+# Export the sequence
 writeXStringSet(x = chr_sequence, filepath = opt$out, append = FALSE)
+file.remove(file.path(tempdir(), "hsa38.fasta.gz"))
+
+
+
+# DOWNLOAD THE ANNOTATION -------------------------------------------------------------------------
+# Download and unzip the genome annotation
+annotation_url <- "https://ftp.ncbi.nlm.nih.gov/refseq/H_sapiens/annotation/GRCh38_latest/refseq_identifiers/GRCh38_latest_genomic.gff.gz"
+download.file(url = annotation_url, destfile = file.path(tempdir(), "hsa38.gff.gz"), quiet = TRUE)
+annotation_tbl <- read_delim(file = file.path(tempdir(), "hsa38.gff.gz"), delim = "\t", col_names = FALSE, comment = "#")
+
+# Filter the annotation to extract only the chromosome of interest (if needed)
+if (opt$seq %in% chr_names) {
+  annotation_tbl <- annotation_tbl %>%
+    dplyr::filter(str_detect(X1, opt$seq))
+}
+
+# Export the annotation
+annotation_gff <- str_replace(string = opt$out, pattern = ".fasta$", replacement = ".gff")
+annotation_gtf <- str_replace(string = opt$out, pattern = ".fasta$", replacement = ".gtf")
+write_delim(x = annotation_tbl, file = annotation_gff, delim = "\t", append = FALSE, col_names = FALSE)
+
+# Convert the annotation format from gff to gtf
+cmd <- paste("gffread -T", annotation_gff, ">", annotation_gtf)
+
+
+
 
 
