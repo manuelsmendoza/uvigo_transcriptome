@@ -27,3 +27,4 @@ if (is.null(opt$seq) || !opt$seq %in% c("genome", paste("chr", 1:22, sep = "")))
 }
 
 print(length(opt_list))
+princomp(opt_list)
