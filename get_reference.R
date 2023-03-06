@@ -36,8 +36,8 @@ if (is.null(opt$out)) {
 
 
 # DOWNLOAD THE SEQUENCE ---------------------------------------------------------------------------
-# R interface to search in the different NCBI databases
-library(rentrez)
+# Manipulation of large biological sequences
+library(Biostrings)
 
 # Define the accession of the human chromosomes (autosomes, X and Y)
 hsa_accessions <- c(
@@ -50,7 +50,7 @@ names(hsa_accessions) <- chr_names
 # Download and unzip the genome sequence
 sequence_url <- "https://ftp.ncbi.nlm.nih.gov/refseq/H_sapiens/annotation/GRCh38_latest/refseq_identifiers/GRCh38_latest_genomic.fna.gz"
 
-download.file(url = sequence_url, destfile = file.path(tempdir(), "hsa38.fasta.gz"))
+download.file(url = sequence_url, destfile = file.path(tempdir(), "hsa38.fasta.gz"), quiet = TRUE)
 system(command = paste("gunzip", file.path(tempdir(), "hsa38.fasta.gz")))
 all_sequence <- readDNAStringSet(filepath = file.path(tempdir(), "hsa38.fasta"))
 
