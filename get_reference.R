@@ -25,3 +25,5 @@ if (is.null(opt$seq) || !opt$seq %in% c("genome", paste("chr", 1:22, sep = "")))
   print_help(opt_parser)
   stop("Sequence name to downlaod is missed or not allowed")
 }
+
+print(length(opt_list))
