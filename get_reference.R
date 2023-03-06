@@ -14,11 +14,11 @@ opt_list   <- list(
               help    = "Output file in FASTA fomat (.fasta)"),
   make_option(opt_str = c("-a", "--ann"), 
               type    = "logical", 
-              default = TRUE, 
+              default = FALSE, 
               help    = "Download the annotation of the sequence"),
   make_option(opt_str = c("-p", "--cds"),
               type    = "logical",
-              default = TRUE, 
+              default = FALSE, 
               help    = "Extract protein coding sequences"))
 opt_parser <- OptionParser(option_list = opt_list)
 opt        <- parse_args(opt_parser)
@@ -67,33 +67,38 @@ if (opt$seq %in% chr_names) {
 
 # Export the sequence
 writeXStringSet(x = chr_sequence, filepath = opt$out, append = FALSE)
-file.remove(file.path(tempdir(), "hsa38.fasta"))
 
 
 
 # DOWNLOAD THE ANNOTATION -------------------------------------------------------------------------
-# Download and unzip the genome annotation
-annotation_url <- "https://ftp.ncbi.nlm.nih.gov/refseq/H_sapiens/annotation/GRCh38_latest/refseq_identifiers/GRCh38_latest_genomic.gff.gz"
-download.file(url = annotation_url, destfile = file.path(tempdir(), "hsa38.gff.gz"), quiet = TRUE)
-annotation_tbl <- read_delim(file = file.path(tempdir(), "hsa38.gff.gz"), delim = "\t", col_names = FALSE, comment = "#")
-
-# Filter the annotation to extract only the chromosome of interest (if needed)
-if (opt$seq %in% chr_names) {
-  annotation_tbl <- annotation_tbl %>%
-    dplyr::filter(str_detect(X1, hsa_accessions[opt$seq]))
+if (opt$ann) {
+  # Download and unzip the genome annotation
+  annotation_url <- "https://ftp.ncbi.nlm.nih.gov/refseq/H_sapiens/annotation/GRCh38_latest/refseq_identifiers/GRCh38_latest_genomic.gff.gz"
+  download.file(url = annotation_url, destfile = file.path(tempdir(), "hsa38.gff.gz"), quiet = TRUE)
+  annotation_tbl <- read_delim(file = file.path(tempdir(), "hsa38.gff.gz"), delim = "\t", col_names = FALSE, col_types = "ccciicccc", comment = "#")
+  
+  # Filter the annotation to extract only the chromosome of interest (if needed)
+  if (opt$seq %in% chr_names) {
+    annotation_tbl <- annotation_tbl %>%
+      dplyr::filter(str_detect(X1, hsa_accessions[opt$seq]))
+  }
+  
+  # Export the annotation
+  annotation_gff <- str_replace(string = opt$out, pattern = ".fasta$", replacement = ".gff")
+  annotation_gtf <- str_replace(string = opt$out, pattern = ".fasta$", replacement = ".gtf")
+  write_delim(x = annotation_tbl, file = annotation_gff, delim = "\t", append = FALSE, col_names = FALSE)
+  
+  # Convert the annotation format from gff to gtf
+  cmd <- paste("gffread -T", annotation_gff, ">", annotation_gtf)
+  system(cmd)
 }
 
-# Export the annotation
-annotation_gff <- str_replace(string = opt$out, pattern = ".fasta$", replacement = ".gff")
-annotation_gtf <- str_replace(string = opt$out, pattern = ".fasta$", replacement = ".gtf")
-write_delim(x = annotation_tbl, file = annotation_gff, delim = "\t", append = FALSE, col_names = FALSE)
-
-# Convert the annotation format from gff to gtf
-cmd <- paste("gffread -T", annotation_gff, ">", annotation_gtf)
-system(cmd)
-file.remove(file.path(tempdir(), "hsa38.gff.gz"))
 
 
-
-
-
+# EXTRACT THE PROTEIN-CODING SEQUENCES ------------------------------------------------------------
+# Extract protein-coding sequences (CDS)
+if (opt$cds) {
+  coding_sequences <- str_replace(string = opt$out, pattern = ".fasta$", replacement = ".CDS.fasta")
+  cmd <- paste("gffread -g", opt$out, "-x", coding_sequences, annotation_gff)
+  system(cmd)
+}
