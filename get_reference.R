@@ -37,7 +37,8 @@ if (is.null(opt$out)) {
 
 # DOWNLOAD THE SEQUENCE ---------------------------------------------------------------------------
 # Manipulation of large biological sequences
-library(Biostrings)
+library("Biostrings", character.only = TRUE, verbose = FALSE)
+library("stringr", character.only = TRUE, verbose = FALSE)
 
 # Define the accession of the human chromosomes (autosomes, X and Y)
 hsa_accessions <- c(
