@@ -9,11 +9,11 @@ opt_list   <- list(
               default = "genome", 
               help    = "Sequence to download"),
   make_option(opt_str = c("-a", "--ann"), 
-              type    = "logic", 
+              type    = "logical", 
               default = TRUE, 
               help    = "Download the annotation of the sequence"),
   make_option(opt_str = c("-p", "--cds"),
-              type    = "logic",
+              type    = "logical",
               default = TRUE, 
               help    = "Extract protein coding sequences")
   )
