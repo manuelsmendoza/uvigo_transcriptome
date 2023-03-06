@@ -21,4 +21,7 @@ opt_list   <- list(
 opt_parser <- OptionParser(option_list = opt_list)
 opt        <- parse_args(opt_parser)
 
-
+if (is.null(opt$seq) || !opt$seq %in% c("genome", paste("chr", 1:22, sep = ""))) {
+  print_help(opt_parser)
+  stop("Sequence name to downlaod is missed or not allowed")
+}
