@@ -47,33 +47,23 @@ hsa_accessions <- c(
   "NC_000019", "NC_000020", "NC_000021", "NC_000022", "NC_000023", "NC_000024")
 names(hsa_accessions) <- chr_names
 
+# Download and unzip the genome sequence
+sequence_url <- "https://ftp.ncbi.nlm.nih.gov/refseq/H_sapiens/annotation/GRCh38_latest/refseq_identifiers/GRCh38_latest_genomic.fna.gz"
+
+download.file(url = sequence_url, destfile = file.path(tempdir(), "hsa38.fasta.gz"))
+system(command = paste("gunzip", file.path(tempdir(), "hsa38.fasta.gz")))
+all_sequence <- readDNAStringSet(filepath = file.path(tempdir(), "hsa38.fasta"))
+
 if (opt$seq %in% chr_names) {
-  sequence_id <- entrez_search(
-    db   = "Nucleotide", 
-    term = hsa_accessions[opt$seq])$ids
-  
-  sequence_nt <- entrez_fetch(
-    db      = "Nucleotide", 
-    id      = sequence_id, 
-    rettype = "fasta")
-  
-  write(x      = sequence_nt, 
-        file   = opt$out, 
-        append = FALSE)
+  chr_sequence <- all_sequence[which(str_detect(string = names(all_sequence), pattern = opt$seq))]
 } else {
-  for (I in 1:length(chr_names)) {
-    sequence_id <- entrez_search(
-      db   = "Nucleotide", 
-      term = hsa_accessions[I])$ids
-    
-    sequence_nt <- entrez_fetch(
-      db      = "Nucleotide", 
-      id      = sequence_id, 
-      rettype = "fasta")
-    
-    write(x      = sequence_nt, 
-          file   = opt$out, 
-          append = TRUE)
+  chr_sequence <- list()
+  for (I in 1:length(hsa_accessions)) {
+    chr_sequence[[I]] <- all_sequence[which(str_detect(string = names(all_sequence), pattern = hsa_accessions[I]))]
   }
+  chr_sequence <- unlist(DNAStringSetList(chr_sequence))
 }
+
+writeXStringSet(x = chr_sequence, filepath = opt$out, append = FALSE)
+
 
