@@ -1,4 +1,6 @@
 # SETUP -------------------------------------------------------------------------------------------
+options(warn = -1)
+
 # Command line parser accept short and long flag/options
 suppressPackageStartupMessages(library("optparse", character.only = TRUE))
 
