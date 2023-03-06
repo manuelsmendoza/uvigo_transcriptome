@@ -6,7 +6,7 @@ library("optparse", character.only = TRUE, verbose = FALSE)
 opt_list   <- list(
   make_option(opt_str = c("-s", "--seq"), 
               type    = "character", 
-              default = "genome", 
+              default = NULL, 
               help    = "Sequence to download"),
   make_option(opt_str = c("-a", "--ann"), 
               type    = "logical", 
@@ -26,5 +26,4 @@ if (is.null(opt$seq) || !opt$seq %in% c("genome", paste("chr", 1:22, sep = "")))
   stop("Sequence name to downlaod is missed or not allowed")
 }
 
-print(length(opt))
-print(opt)
+
