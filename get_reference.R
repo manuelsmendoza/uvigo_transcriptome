@@ -28,11 +28,11 @@ opt        <- parse_args(opt_parser)
 chr_names  <- c(paste("chr", 1:22, sep = ""), "chrX", "chrY")
 if (is.null(opt$seq) || !opt$seq %in% c("genome", chr_names)) {
   print_help(opt_parser)
-  stop("Sequence name to downlaod is missed or not allowed")
+  stop(paste0("[", Sys.time(), "] [FAIL]: Sequence name to downlaod is missed or not allowed"))
 }
 
 if (!opt$ann && opt$cds) {
-  stop("Sequence annotation required to extract protein-coding sequences")
+  stop(paste0("[", Sys.time(), "] [FAIL]: Sequence annotation required to extract protein-coding sequences"))
 }
 
 if (is.null(opt$out)) {
@@ -62,8 +62,10 @@ all_sequence <- readDNAStringSet(filepath = file.path(tempdir(), "hsa38.fasta"))
 
 # Select the sequences to export
 if (opt$seq %in% chr_names) {
+  message(paste0("[", Sys.time(), "] [INFO]: Downloading ", opt$seq, "sequence"))
   chr_sequence <- all_sequence[which(str_detect(string = names(all_sequence), pattern = hsa_accessions[opt$seq]))]
 } else {
+  message(paste0("[", Sys.time(), "] [INFO]: Downloading human genome GRCh38 sequence"))
   chr_sequence <- list()
   for (I in 1:length(hsa_accessions)) {
     chr_sequence[[I]] <- all_sequence[which(str_detect(string = names(all_sequence), pattern = hsa_accessions[I]))]
@@ -78,6 +80,7 @@ writeXStringSet(x = chr_sequence, filepath = opt$out, append = FALSE)
 
 # DOWNLOAD THE ANNOTATION -------------------------------------------------------------------------
 if (opt$ann) {
+  message(paste0("[", Sys.time(), "] [INFO]: Downloading sequence annotation"))
   # Download and unzip the genome annotation
   annotation_url <- "https://ftp.ncbi.nlm.nih.gov/refseq/H_sapiens/annotation/GRCh38_latest/refseq_identifiers/GRCh38_latest_genomic.gff.gz"
   download.file(url = annotation_url, destfile = file.path(tempdir(), "hsa38.gff.gz"), quiet = TRUE)
@@ -102,9 +105,11 @@ if (opt$ann) {
 
 
 # EXTRACT THE PROTEIN-CODING SEQUENCES ------------------------------------------------------------
+message(paste0("[", Sys.time(), "] [INFO]: Extracting protein-coding sequences"))
 # Extract protein-coding sequences (CDS)
 if (opt$cds) {
   coding_sequences <- str_replace(string = opt$out, pattern = ".fasta$", replacement = ".CDS.fasta")
   cmd <- paste("gffread -g", opt$out, "-x", coding_sequences, annotation_gff)
   system(cmd, ignore.stdout = TRUE, ignore.stderr = TRUE)
+  out <- file.remove(paste0(opt$out, ".fai"))
 }
