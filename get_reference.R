@@ -67,7 +67,7 @@ if (opt$seq %in% chr_names) {
 
 # Export the sequence
 writeXStringSet(x = chr_sequence, filepath = opt$out, append = FALSE)
-file.remove(file.path(tempdir(), "hsa38.fasta.gz"))
+file.remove(file.path(tempdir(), "hsa38.fasta"))
 
 
 
@@ -80,7 +80,7 @@ annotation_tbl <- read_delim(file = file.path(tempdir(), "hsa38.gff.gz"), delim 
 # Filter the annotation to extract only the chromosome of interest (if needed)
 if (opt$seq %in% chr_names) {
   annotation_tbl <- annotation_tbl %>%
-    dplyr::filter(str_detect(X1, opt$seq))
+    dplyr::filter(str_detect(X1, hsa_accessions[opt$seq]))
 }
 
 # Export the annotation
@@ -90,6 +90,8 @@ write_delim(x = annotation_tbl, file = annotation_gff, delim = "\t", append = FA
 
 # Convert the annotation format from gff to gtf
 cmd <- paste("gffread -T", annotation_gff, ">", annotation_gtf)
+system(cmd)
+file.remove(file.path(tempdir(), "hsa38.gff.gz"))
 
 
 
