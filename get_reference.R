@@ -29,6 +29,10 @@ if (is.null(opt$seq) || !opt$seq %in% c("genome", chr_names)) {
   stop("Sequence name to downlaod is missed or not allowed")
 }
 
+if (!opt$ann && opt$cds) {
+  stop("Sequence annotation required to extract protein-coding sequences")
+}
+
 if (is.null(opt$out)) {
   opt$out <- file.path(getwd(), paste0(opt$seq, ".fasta"))
 }
@@ -90,7 +94,7 @@ if (opt$ann) {
   
   # Convert the annotation format from gff to gtf
   cmd <- paste("gffread -T", annotation_gff, ">", annotation_gtf)
-  system(cmd)
+  system(cmd, ignore.stdout = TRUE, ignore.stderr = TRUE)
 }
 
 
@@ -100,5 +104,5 @@ if (opt$ann) {
 if (opt$cds) {
   coding_sequences <- str_replace(string = opt$out, pattern = ".fasta$", replacement = ".CDS.fasta")
   cmd <- paste("gffread -g", opt$out, "-x", coding_sequences, annotation_gff)
-  system(cmd)
+  system(cmd, ignore.stdout = TRUE, ignore.stderr = TRUE)
 }
