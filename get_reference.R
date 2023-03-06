@@ -62,7 +62,7 @@ all_sequence <- readDNAStringSet(filepath = file.path(tempdir(), "hsa38.fasta"))
 
 # Select the sequences to export
 if (opt$seq %in% chr_names) {
-  message(paste0("[", Sys.time(), "] [INFO]: Downloading ", opt$seq, "sequence"))
+  message(paste0("[", Sys.time(), "] [INFO]: Downloading ", opt$seq, " sequence"))
   chr_sequence <- all_sequence[which(str_detect(string = names(all_sequence), pattern = hsa_accessions[opt$seq]))]
 } else {
   message(paste0("[", Sys.time(), "] [INFO]: Downloading human genome GRCh38 sequence"))
