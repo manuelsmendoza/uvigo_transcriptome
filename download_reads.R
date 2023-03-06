@@ -43,4 +43,5 @@ sra_files <- list.files(path = opt$out, pattern = opt$acc, full.names = TRUE)
 
 for (FILE in sra_files) {
   cmd <- paste("pigz --force --best --processes", opt$cpu, FILE)
+  system(cmd, ignore.stdout = TRUE, ignore.stderr = TRUE)
 }
