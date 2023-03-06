@@ -21,7 +21,7 @@ opt_list   <- list(
 opt_parser <- OptionParser(option_list = opt_list)
 opt        <- parse_args(opt_parser)
 
-if (is.null(opt$seq)) {
+if (is.null(opt$acc)) {
   stop(paste0("[", Sys.time(), "] [FAIL]: Sample accession number required"))
 }
 
