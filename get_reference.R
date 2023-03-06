@@ -8,7 +8,7 @@ opt_list   <- list(
               type    = "character", 
               default = NULL, 
               help    = "Sequence to download"),
-  make_option(opt_str = c("-p", "--out"), 
+  make_option(opt_str = c("-o", "--out"), 
               type    = "character", 
               default = NULL, 
               help    = "Output file"),
