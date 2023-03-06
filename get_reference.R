@@ -96,7 +96,7 @@ if (opt$ann) {
   
   # Convert the annotation format from gff to gtf
   cmd <- paste("gffread -T", annotation_gff, ">", annotation_gtf)
-  system(cmd, ignore.stdout = TRUE, ignore.stderr = TRUE)
+  system(cmd)
 }
 
 
