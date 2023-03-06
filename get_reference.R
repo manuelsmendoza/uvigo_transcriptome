@@ -37,6 +37,8 @@ if (!opt$ann && opt$cds) {
 
 if (is.null(opt$out)) {
   opt$out <- file.path(getwd(), paste0(opt$seq, ".fasta"))
+} else {
+  opt$out <- normalizePath(opt$out)
 }
 
 # Define the chromosomes accession
@@ -84,7 +86,7 @@ if (opt$ann) {
   # Download and unzip the genome annotation
   annotation_url <- "https://ftp.ncbi.nlm.nih.gov/refseq/H_sapiens/annotation/GRCh38_latest/refseq_identifiers/GRCh38_latest_genomic.gff.gz"
   download.file(url = annotation_url, destfile = file.path(tempdir(), "hsa38.gff.gz"), quiet = TRUE)
-  suppressMessages(annotation_tbl <- read_delim(file = file.path(tempdir(), "hsa38.gff.gz"), delim = "\t", col_names = FALSE, col_types = cols(), comment = "#", show_col_types = FALSE))
+  suppressMessages(annotation_tbl <- read_delim(file = file.path(tempdir(), "hsa38.gff.gz"), delim = "\t", col_names = FALSE, col_types = cols(), comment = "#"))
   
   # Filter the annotation to extract only the chromosome of interest (if needed)
   if (opt$seq %in% chr_names) {
