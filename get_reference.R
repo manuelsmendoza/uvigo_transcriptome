@@ -1,6 +1,6 @@
 # SETUP -------------------------------------------------------------------------------------------
 # Command line parser accept short and long flag/options
-library("optparse", character.only = TRUE, verbose = FALSE) 
+suppressPackageStartupMessages(library("optparse", character.only = TRUE))
 
 # Parse the options
 opt_list   <- list(
@@ -37,8 +37,8 @@ if (is.null(opt$out)) {
 
 # DOWNLOAD THE SEQUENCE ---------------------------------------------------------------------------
 # Manipulation of large biological sequences
-library("Biostrings", character.only = TRUE, verbose = FALSE)
-library("stringr", character.only = TRUE, verbose = FALSE)
+suppressPackageStartupMessages(library("Biostrings", character.only = TRUE))
+suppressPackageStartupMessages(library("stringr",    character.only = TRUE))
 
 # Define the accession of the human chromosomes (autosomes, X and Y)
 hsa_accessions <- c(
@@ -56,7 +56,7 @@ system(command = paste("gunzip", file.path(tempdir(), "hsa38.fasta.gz")))
 all_sequence <- readDNAStringSet(filepath = file.path(tempdir(), "hsa38.fasta"))
 
 if (opt$seq %in% chr_names) {
-  chr_sequence <- all_sequence[which(str_detect(string = names(all_sequence), pattern = opt$seq))]
+  chr_sequence <- all_sequence[which(str_detect(string = names(all_sequence), pattern = hsa_accessions[opt$seq]))]
 } else {
   chr_sequence <- list()
   for (I in 1:length(hsa_accessions)) {
