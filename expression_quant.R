@@ -120,8 +120,8 @@ gene_tpms <- apply(X = gene_counts, MARGIN = 2, FUN = function(x){count_tpm(x, g
 
 
 # Export gene expression matrix and remove tmp files
-write_delim(x = gene_counts, file = file.path(opt$out, "gene_expression.cts.tsv"), delim = "\t", append = FALSE, col_names = FALSE)
-write_delim(x = gene_tpms,   file = file.path(opt$out, "gene_expression.tpm.tsv"), delim = "\t", append = FALSE, col_names = FALSE)
+write.table(x = gene_counts, file = file.path(opt$out, "gene_expression.cts.tsv"), sep = "\t", append = FALSE, row.names = TRUE, col.names = TRUE)
+write.table(x = gene_tpms,   file = file.path(opt$out, "gene_expression.tpm.tsv"), sep = "\t", append = FALSE, row.names = TRUE, col.names = TRUE)
 
 tmp_files <- list.files(path = opt$out, pattern = ".bam", full.names = TRUE)
 for (TF in tmp_files) {
