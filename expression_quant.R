@@ -34,7 +34,7 @@ opt_parser <- OptionParser(option_list = opt_list)
 opt        <- parse_args(opt_parser)
 
 
-if (is.null(opt$ref) || is.null(opt$spl) || is.null(opt$tech)) {
+if (is.null(opt$ref) || is.null(opt$spl) || is.null(opt$tec)) {
   stop(paste0("[", Sys.time(), "] [FAIL]: Information required missed"))
 }
 
