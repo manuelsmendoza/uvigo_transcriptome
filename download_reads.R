@@ -13,11 +13,11 @@ opt_list   <- list(
   make_option(opt_str = c("-o", "--out"), 
               type    = "character", 
               default = NULL, 
-              help    = "Accession number"),
+              help    = "Output directory"),
   make_option(opt_str = c("-c", "--cpu"), 
               type    = "double", 
               default = 1, 
-              help    = "Accession number"))
+              help    = "Number of threads to use"))
 opt_parser <- OptionParser(option_list = opt_list)
 opt        <- parse_args(opt_parser)
 
