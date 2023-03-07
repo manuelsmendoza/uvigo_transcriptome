@@ -25,7 +25,7 @@ opt_list   <- list(
   make_option(opt_str = c("-t", "--tec"), 
               type    = "character", 
               default = NULL, 
-              help    = "High throughput sequencing technique"),
+              help    = "Type of reference used: genome (geno) or transcriptome (tran)"),
   make_option(opt_str = c("-c", "--cpu"), 
               type    = "double", 
               default = 1, 
@@ -127,3 +127,27 @@ tmp_files <- list.files(path = opt$out, pattern = ".bam", full.names = TRUE)
 for (TF in tmp_files) {
   out <- file.remove(TF)
 }
+
+
+
+# FUNCTIONAL ANALYSIS -----------------------------------------------------------------------------
+# Differential gene expression
+suppressPackageStartupMessages(library("DESeq2", character.only = TRUE))
+if (ncol(samples_info) == 3) {
+  colnames(samples_info) <- c("SAMPLE", "TREATMENT", "READS")
+} else if (ncol(samples_info) == 4) {
+  colnames(samples_info) <- c("SAMPLE", "TREATMENT", "FREADS", "RREADS")
+}
+
+dds <- DESeqDataSetFromMatrix(
+  countData = gene_counts, 
+  colData   = samples_info, 
+  design    = ~ TREATMENT
+)
+dds <- DESeq(dds)
+res <- results(object = dds, name = resultsNames(dds)[2])
+res <- as.data.frame(res)
+
+write.table(x = res, file = file.path(opt$out, "differential_expression.tsv"), append = FALSE, sep = "\t", row.names = TRUE, col.names = TRUE)
+
+
