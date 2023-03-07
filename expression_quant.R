@@ -59,7 +59,7 @@ buildindex(
   basename  = ref_index
 )
 
-samples_info <- read_delim(file = opt$dpl, delim = "\t", col_names = FALSE)
+samples_info <- read_delim(file = opt$spl, delim = "\t", col_names = FALSE)
 if (ncol(samples_info) == 3 ) {
   for (I in 1:nrow(samples_info)) {
     align(
