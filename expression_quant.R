@@ -49,6 +49,7 @@ if (!opt$tec %in% c("tran", "geno")) {
 # BUILD SEQUENCE INDEX ----------------------------------------------------------------------------
 # Command line parser accept short and long flag/options
 suppressPackageStartupMessages(library("Rsubread", character.only = TRUE))
+suppressPackageStartupMessages(library("readr",    character.only = TRUE))
 suppressPackageStartupMessages(library("stringr",  character.only = TRUE))
 
 # Build reference index
